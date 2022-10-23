@@ -1,0 +1,25 @@
+<!--示例页面 -->
+<!-- 切换早中晚图表 -->
+<view class="input-example">
+  <canvas canvas-id="myCanvas" disable-scroll="true" style="width: 100%;height: 200px;" bindtouchstart="touchHandler"></canvas>
+  <view class="box" style="margin-left: 2%;margin-right: 2%;">
+    <radio-group bindchange="radioChange" class="flex-wrp" style="margin-bottom: 10rpx;display: flex;align-items: center;justify-content: center;width: 100%;">
+      <radio value="all" color="#0052d9" checked="true">所有</radio>
+      <radio value="morning" color="#0052d9" style="margin-right: 5rpx;margin-left: 5rpx;">早上</radio>
+      <radio value="night" color="#0052d9" >晚上</radio>
+    </radio-group>
+  </view>
+  <view class="box" style="margin-left: 2%;margin-right: 2%;">
+    <t-button theme="primary" bind:tap="addRecord" block>添加新数据</t-button>
+  </view>
+
+  <view  style="margin-bottom: 10rpx;display: flex;align-items: center;justify-content: center;width: 100%;">
+    <t-button theme="primary" bind:tap="output2Clipboard"  style="margin-left: 2%;margin-right: 1%;margin-top: 10rpx;width: 100%;" block>导出到剪切板</t-button>
+    <t-button theme="primary" bind:tap="addHistoryData"  style="margin-left: 1%;margin-right: 2%;margin-top: 10rpx;width: 100%;" block>添加历史数据</t-button>
+</view>
+
+  <view wx:for="{{data}}" wx:for-item="item">
+    <t-input id="{{item.time}}" label="{{item.timeStr}}" model:value="{{item.weight}}" bindblur="inputComplete" placeholder="请输入体重" />
+  </view>
+
+</view>

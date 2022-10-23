@@ -1,0 +1,19 @@
+{
+  "pages":[
+    "pages/input/input"
+  ],
+  "sitemapLocation": "sitemap.json",
+
+
+  "usingComponents": {
+    "t-button": "tdesign-miniprogram/button/button",
+    "t-input": "tdesign-miniprogram/input/input"
+  },
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#f6f6f6",
+    "backgroundColor": "#f6f6f6",
+    "navigationBarTitleText": "TDesign",
+    "navigationBarTextStyle": "black"
+  }
+}
