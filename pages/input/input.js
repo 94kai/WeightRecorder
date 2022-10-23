@@ -58,7 +58,8 @@ Page({
     data: [],
     inputVal: [] //所有input的内容
   },
-
+  onShareAppMessage:function(){},
+  onShareTimeline:function(){},
 
   onShow: function () {
     // getFromLocal
@@ -166,7 +167,7 @@ Page({
     var self = this
     wx.showModal({
       title: '提示',
-      editable: 'true',
+      editable:true,
       placeholderText: '需要添加的历史数据个数',
       success: function (res) {
         if (res.confirm) {
