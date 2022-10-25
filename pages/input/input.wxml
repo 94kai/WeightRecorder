@@ -15,6 +15,7 @@
 
   <view  style="margin-bottom: 10rpx;display: flex;align-items: center;justify-content: center;width: 100%;">
     <t-button theme="primary" bind:tap="output2Clipboard"  style="margin-left: 2%;margin-right: 1%;margin-top: 10rpx;width: 100%;" block>导出到剪切板</t-button>
+    <t-button theme="primary" bind:tap="inputData"  style="margin-left: 1%;margin-right: 1%;margin-top: 10rpx;width: 100%;" block>导入数据</t-button>
     <t-button theme="primary" bind:tap="addHistoryData"  style="margin-left: 1%;margin-right: 2%;margin-top: 10rpx;width: 100%;" block>添加历史数据</t-button>
 </view>
 

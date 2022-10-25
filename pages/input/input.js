@@ -47,7 +47,7 @@ function updateChat(data) {
       format: function (val) {
         return val;
       },
-      min: 50
+      min: 115,
     },
     width: wx.getSystemInfoSync().windowWidth,
     height: 200
@@ -58,8 +58,8 @@ Page({
     data: [],
     inputVal: [] //所有input的内容
   },
-  onShareAppMessage:function(){},
-  onShareTimeline:function(){},
+  onShareAppMessage: function () {},
+  onShareTimeline: function () {},
 
   onShow: function () {
     // getFromLocal
@@ -163,11 +163,37 @@ Page({
     });
 
   },
+  inputData: function (e) {
+    var self = this
+    wx.showModal({
+      title: '请粘贴数据（数据可先导出到剪切板，然后通过记事本修改，再进行导入。导入后会删除原始数据，谨慎操作）',
+      editable: true,
+      placeholderText: '',
+      success: function (res) {
+        var newData = JSON.parse(res.content)
+        newData.forEach(function (item, key) {
+          convert2TimeStr(item)
+        })
+        self.setData({
+          data: newData
+        })
+        updateChat(self.data.data)
+        wx.setStorage({
+          key: "info",
+          data: newData
+        })
+        wx.showModal({
+          title: '提示',
+          content: '导入成功',
+        })
+      }
+    })
+  },
   addHistoryData: function (e) {
     var self = this
     wx.showModal({
       title: '提示',
-      editable:true,
+      editable: true,
       placeholderText: '需要添加的历史数据个数',
       success: function (res) {
         if (res.confirm) {
