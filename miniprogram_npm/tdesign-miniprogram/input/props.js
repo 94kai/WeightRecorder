@@ -54,6 +54,10 @@ const props = {
         type: String,
         value: undefined,
     },
+    onLabelTap: {
+      type: String,
+      value: undefined,
+  },
     prefixIcon: {
         type: String,
     },

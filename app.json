@@ -7,7 +7,11 @@
 
   "usingComponents": {
     "t-button": "tdesign-miniprogram/button/button",
-    "t-input": "tdesign-miniprogram/input/input"
+    "t-input": "tdesign-miniprogram/input/input",
+    "t-picker": "tdesign-miniprogram/picker/picker",
+    "t-picker-column": "tdesign-miniprogram/picker/picker-column",
+    "t-transition": "tdesign-miniprogram/transition/transition",
+    "t-popup": "tdesign-miniprogram/popup/popup"
   },
   "window": {
     "backgroundTextStyle": "light",

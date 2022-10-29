@@ -16,11 +16,30 @@
   <view  style="margin-bottom: 10rpx;display: flex;align-items: center;justify-content: center;width: 100%;">
     <t-button theme="primary" bind:tap="output2Clipboard"  style="margin-left: 2%;margin-right: 1%;margin-top: 10rpx;width: 100%;" block>导出到剪切板</t-button>
     <t-button theme="primary" bind:tap="inputData"  style="margin-left: 1%;margin-right: 1%;margin-top: 10rpx;width: 100%;" block>导入数据</t-button>
-    <t-button theme="primary" bind:tap="addHistoryData"  style="margin-left: 1%;margin-right: 2%;margin-top: 10rpx;width: 100%;" block>添加历史数据</t-button>
+    <t-button theme="primary" bind:tap="help"  style="margin-left: 1%;margin-right: 2%;margin-top: 10rpx;width: 100%;" block>帮助</t-button>
 </view>
 
-  <view wx:for="{{data}}" wx:for-item="item">
-    <t-input id="{{item.time}}" label="{{item.timeStr}}" model:value="{{item.weight}}" bindblur="inputComplete" placeholder="请输入体重" />
+  <view wx:for="{{data}}" wx:for-item="item" wx:key="index">
+    <t-input bindlongpress="longPress" data-index="{{index}}" data-time="{{item.time}}" bind:onLabelTap="onClickPicker" label="{{item.timeStr}}" model:value="{{item.weight}}" bindblur="inputComplete" placeholder="请输入体重" />
   </view>
 
+<!-- 年月日带标题 -->
+<t-picker
+    visible="{{pickerVisible}}"
+    title="选择日期"
+    cancelBtn="取消"
+    confirmBtn="确认"
+    bindchange="onPickerChange"
+    bindconfirm="onPickerConfirm"
+    bindcancel="onPickerCancel"
+  >
+    <t-picker-column
+      options="{{years}}"
+      value="{{selectedYearsWithDate}}"
+      bindchange="onColumnChange"
+    />
+    <t-picker-column options="{{months}}" value="{{selectedMonth}}" bindchange="onColumnChange"/>
+    <t-picker-column options="{{days}}" value="{{selectedDay}}" bindchange="onColumnChange"/>
+    <t-picker-column options="{{timeSegment}}" value="{{selectedTimeSegment}}" bindchange="onColumnChange"/>
+  </t-picker>
 </view>

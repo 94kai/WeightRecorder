@@ -58,6 +58,9 @@ let Input = class Input extends SuperComponent {
                 this.triggerEvent('clear', event.detail);
                 this.setData({ value: '' });
             },
+            onLabelTap(event) {
+              this.triggerEvent("onLabelTap", event.detail);
+          },
         };
     }
 };

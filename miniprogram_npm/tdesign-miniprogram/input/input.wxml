@@ -3,7 +3,7 @@
 >
   <view wx:if="{{label}}" class="{{classPrefix + '__name'}}">
     <slot name="label" wx:if="{{label === 'slot'}}" />
-    <text wx:else>{{label}}</text>
+    <text wx:else bindtap="onLabelTap" data-onLabelTap="{{onLabelTap}}">{{label}}</text>
   </view>
 
   <view class="{{classPrefix}}__wrap">

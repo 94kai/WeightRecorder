@@ -1,5 +1,6 @@
 var wxCharts = require('../../utils/wxcharts.js')
 var chatType = "all"
+var pickIndex
 
 function convert2TimeStr(item) {
   var blank = ""
@@ -12,6 +13,7 @@ function convert2TimeStr(item) {
     myDate.getDate() < 10 ? '0' + myDate.getDate() : myDate.getDate(), " ",
     myDate.getHours() <= 12 ? "早" : "晚");
   item.timeStr = myTime
+  console.log(item)
   return item
 }
 
@@ -56,7 +58,34 @@ function updateChat(data) {
 Page({
   data: {
     data: [],
-    inputVal: [] //所有input的内容
+    pickerVisible: false,
+    pickerTitle: '',
+    // 去年和今年两年
+    years: Array.from(new Array(2), (_, index) => ({
+      label: `${new Date().getFullYear()-1+index}年`,
+      value: new Date().getFullYear() - 1 + index,
+    })),
+    timeSegment: [{
+        label: '早',
+        value: '1'
+      },
+      {
+        label: '晚',
+        value: '2'
+      },
+    ],
+    months: Array.from(new Array(12), (_, index) => ({
+      label: `${index + 1}月`,
+      value: index + 1,
+    })),
+    days: Array.from(new Array(31), (_, index) => ({
+      label: `${index + 1}日`,
+      value: index + 1
+    })),
+    selectedYearsWithDate: '',
+    selectedMonth: '',
+    selectedDay: '',
+    selectedTimeSegment: '',
   },
   onShareAppMessage: function () {},
   onShareTimeline: function () {},
@@ -85,31 +114,10 @@ Page({
   //获取input的值
   addRecord: function (e) {
     var data = this.data.data;
-    // 去重判断
     var newItem = convert2TimeStr({
       time: Date.parse(new Date()),
       weight: 0
     })
-    var has = false
-    data.forEach(function (item, key) {
-      if (item.timeStr == newItem.timeStr) {
-        has = true
-      }
-    })
-    if (has) {
-      wx.showModal({
-        title: '提示',
-        content: '该时间段已添加',
-        success: function (res) {
-          if (res.confirm) {
-            console.log('确定')
-          } else if (res.cancel) {
-            console.log('取消')
-          }
-        }
-      })
-      return
-    }
     data.splice(0, 0, newItem);
     this.setData({
       data: data
@@ -123,14 +131,11 @@ Page({
   },
   inputComplete: function (e) {
     var newValue = e.detail.value
-    var id = e.currentTarget.id
-    this.data.data.forEach(function (item, key) {
-      if (item.time == id) {
-        item.weight = newValue
-        console.log("change:" + item.timeStr + " " + newValue)
-        return
-      }
-    })
+    var index = e.currentTarget.dataset.index
+    this.data.data[index].weight = newValue
+    console.log("chagne:")
+    console.log(this.data.data[index])
+
     this.setData({
       data: this.data.data
     })
@@ -189,45 +194,86 @@ Page({
       }
     })
   },
-  addHistoryData: function (e) {
+  onPickerConfirm(e) {
+    var _a, _b, _c, _d;
+    this.setData({
+      pickerVisible: false,
+      selectedYearsWithDate: (_a = e.detail.value[0]) === null || _a === void 0 ? void 0 : _a.value,
+      selectedMonth: (_b = e.detail.value[1]) === null || _b === void 0 ? void 0 : _b.value,
+      selectedDay: (_c = e.detail.value[2]) === null || _c === void 0 ? void 0 : _c.value,
+      selectedTimeSegment: (_d = e.detail.value[3]) === null || _d === void 0 ? void 0 : _d.value,
+    });
+    var newDate = new Date()
+    newDate.setFullYear(_a.value)
+    newDate.setMonth(_b.value - 1)
+    newDate.setDate(_c.value)
+    var hours
+    if (_d.value == 1) {
+      hours = 8
+    } else if (_d.value == 2) {
+      hours = 20
+    }
+    newDate.setHours(hours)
+    this.data.data[pickIndex].time = newDate.valueOf()
+    convert2TimeStr(this.data.data[pickIndex])
+    console.log(this.data.data)
+    this.data.data.sort((a, b) => {
+      return b.time - a.time
+    })
+    console.log(this.data.data)
+    this.setData({
+      data: this.data.data
+    })
+    updateChat(this.data.data)
+    wx.setStorage({
+      key: "info",
+      data: this.data.data
+    })
+  },
+  onPickerCancel() {
+    this.setData({
+      pickerVisible: false,
+    });
+  },
+  longPress(e) {
     var self = this
     wx.showModal({
       title: '提示',
-      editable: true,
-      placeholderText: '需要添加的历史数据个数',
+      content:'确认删除吗？',
+      placeholderText: '',
       success: function (res) {
         if (res.confirm) {
-          if ((/(^[0-9]*$)/.test(res.content) && res.content != "")) {
-            wx.showModal({
-              title: '提示',
-              content: '添加成功',
-            })
-            var lastItemStr = JSON.stringify(self.data.data[self.data.data.length - 1])
-            console.log(lastItemStr)
-            for (var i = 0; i < res.content; i++) {
-              var newItem = JSON.parse(lastItemStr);
-              newItem.time = newItem.time - 12 * 60 * 60 * 1000 * (i + 1)
-              newItem.weight = 0
-              console.log(newItem.time)
-              self.data.data.push(newItem)
-              convert2TimeStr(newItem)
-            }
-            self.setData({
-              data: self.data.data
-            })
-            updateChat(self.data.data)
-            wx.setStorage({
-              key: "info",
-              data: self.data.data
-            })
-          } else {
-            wx.showModal({
-              title: '提示',
-              content: '请输入整数',
-            })
-          }
+          var index = e.currentTarget.dataset.index
+          self.data.data.splice(index, 1)
+          self.setData({
+            data: self.data.data
+          })
+          updateChat(self.data.data)
+          wx.setStorage({
+            key: "info",
+            data: self.data.data
+          })
         }
       }
     })
-  }
+  },
+  onClickPicker(e) {
+    var index = e.currentTarget.dataset.index
+    pickIndex = index
+
+    var time = new Date(this.data.data[index].time)
+    this.setData({
+      pickerVisible: true,
+      selectedYearsWithDate: time.getFullYear(),
+      selectedMonth: time.getMonth() + 1,
+      selectedDay: time.getDate(),
+      selectedTimeSegment: time.getHours() <= 12 ? "1" : "2",
+    });
+  },
+  help(e) {
+    wx.showModal({
+      title: '帮助',
+      content: "1.点击“添加新数据”，新增一条新纪录，点击条目左侧可修改时间，右侧可修改体重（数据会自动按时间重排序）\r\n2.长按某个条目，可删除某条记录\r\n3.体重数据全部保存在手机本地，如果要换手机，可点击导出到剪切板。在新手机上通过导入数据复制之前导出的数据",
+    })
+  },
 });
