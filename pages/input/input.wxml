@@ -9,8 +9,9 @@
       <radio value="night" color="#0052d9">晚上</radio>
     </radio-group>
   </view>
-  <view class="box" style="margin-left: 2%;margin-right: 2%;">
-    <t-button theme="primary" bind:tap="addRecord" block>添加新数据</t-button>
+  <view class="box" style="display: flex;align-items: center;justify-content: center;width: 100%;">
+    <t-button theme="primary" bind:tap="addRecord" style="margin-left: 2%;margin-right: 1%;margin-top: 10rpx;width: 100%;" block>添加新数据</t-button>
+    <t-button theme="primary" bind:tap="setDataCount" style="margin-left: 1%;margin-right: 2%;margin-top: 10rpx;width: 100%;" block>{{strForSetShowDataCount}}</t-button>
   </view>
 
   <view style="margin-bottom: 10rpx;display: flex;align-items: center;justify-content: center;width: 100%;">
@@ -20,7 +21,7 @@
   </view>
 
   <view wx:for="{{data}}" wx:for-item="item" wx:key="index">
-    <t-input bindlongpress="longPress" data-index="{{index}}" data-time="{{item.time}}" bind:onLabelTap="onClickPicker" label="{{item.timeStr}}" model:value="{{item.weight}}" bindblur="inputComplete" placeholder="请输入体重" />
+    <t-input bindlongpress="longPress" data-index="{{index}}" data-time="{{item.time}}" bind:onLabelTap="onClickPickerForDate" label="{{item.timeStr}}" model:value="{{item.weight}}" bindblur="inputComplete" placeholder="请输入体重" />
   </view>
 
   <!-- 年月日带标题 -->

@@ -1,6 +1,7 @@
 var wxCharts = require('../../utils/wxcharts.js')
 var chatType = "all"
 var pickIndex
+var globalSelf
 
 function convert2TimeStr(item) {
   var blank = ""
@@ -17,7 +18,20 @@ function convert2TimeStr(item) {
   return item
 }
 
-function updateChat(data) {
+function updateChat(data, showDataCount) {
+  if(globalSelf!=null){
+    globalSelf.setData({
+      strForSetShowDataCount:showDataCount==2147483647?"展示所有数据":"展示最近"+showDataCount+"条数据"
+    })
+  }
+
+
+
+
+
+
+
+
   var newData = data.filter(element => {
     if (chatType == "morning") {
       return element.timeStr.indexOf("早") > 0;
@@ -30,6 +44,8 @@ function updateChat(data) {
   if (newData.length == 0) {
     return
   }
+  newData.splice(showDataCount);
+
   new wxCharts({
     canvasId: 'myCanvas',
     type: 'line',
@@ -65,6 +81,7 @@ Page({
       label: `${new Date().getFullYear()-1+index}年`,
       value: new Date().getFullYear() - 1 + index,
     })),
+    strForSetShowDataCount: "",
     timeSegment: [{
         label: '早',
         value: '1'
@@ -74,6 +91,7 @@ Page({
         value: '2'
       },
     ],
+    showDataCount: 2147483647,
     months: Array.from(new Array(12), (_, index) => ({
       label: `${index + 1}月`,
       value: index + 1,
@@ -91,8 +109,13 @@ Page({
   onShareTimeline: function () {},
 
   onShow: function () {
+    globalSelf = this
     // getFromLocal
     var that = this
+    var showDataCount = wx.getStorageSync('showDataCount')
+    if (!showDataCount) {
+      showDataCount = 2147483647
+    }
     wx.getStorage({
       key: 'info',
       success(res) {
@@ -103,12 +126,12 @@ Page({
           convert2TimeStr(item)
         })
         that.setData({
-          data: originData
+          data: originData,
+          showDataCount: showDataCount
         })
-        updateChat(originData)
+        updateChat(originData, that.data.showDataCount)
       }
     })
-
   },
 
   //获取input的值
@@ -122,7 +145,7 @@ Page({
     this.setData({
       data: data
     })
-    updateChat(data)
+    updateChat(data, this.data.showDataCount)
 
     wx.setStorage({
       key: "info",
@@ -139,7 +162,7 @@ Page({
     this.setData({
       data: this.data.data
     })
-    updateChat(this.data.data)
+    updateChat(this.data.data, this.data.showDataCount)
     wx.setStorage({
       key: "info",
       data: this.data.data
@@ -147,7 +170,7 @@ Page({
   },
   radioChange: function (e) {
     chatType = e.detail.value
-    updateChat(this.data.data)
+    updateChat(this.data.data, this.data.showDataCount)
   },
   output2Clipboard: function (e) {
     wx.setClipboardData({
@@ -182,7 +205,7 @@ Page({
         self.setData({
           data: newData
         })
-        updateChat(self.data.data)
+        updateChat(self.data.data, self.data.showDataCount)
         wx.setStorage({
           key: "info",
           data: newData
@@ -224,7 +247,7 @@ Page({
     this.setData({
       data: this.data.data
     })
-    updateChat(this.data.data)
+    updateChat(this.data.data, this.data.showDataCount)
     wx.setStorage({
       key: "info",
       data: this.data.data
@@ -235,11 +258,52 @@ Page({
       pickerVisible: false,
     });
   },
+  setDataCount() {
+    var self = this
+    wx.showModal({
+      title: '设置折线图展示的数据条数',
+      editable: true,
+      content: '请输入要展示最近多少条数据，空或零表示所有',
+      placeholderText: '',
+      success: function (res) {
+        if (res.confirm) {
+          if (!isNaN(res.content) & res.content % 1 === 0) {
+            var count = 0
+            if (res.content == 0) {
+              count = 2147483647
+            } else {
+              count = res.content
+            }
+            self.setData({
+              showDataCount: count
+            })
+            updateChat(self.data.data, self.data.showDataCount)
+            wx.setStorage({
+              key: "showDataCount",
+              data: count
+            })
+          } else {
+            wx.showToast({
+              title: '请输入正确的数字',
+              icon: 'none',
+              duration: 1000
+            })
+          }
+        }
+      }
+    })
+
+
+
+
+    // var count = 7
+
+  },
   longPress(e) {
     var self = this
     wx.showModal({
       title: '提示',
-      content:'确认删除吗？',
+      content: '确认删除吗？',
       placeholderText: '',
       success: function (res) {
         if (res.confirm) {
@@ -248,7 +312,7 @@ Page({
           self.setData({
             data: self.data.data
           })
-          updateChat(self.data.data)
+          updateChat(self.data.data, self.data.showDataCount)
           wx.setStorage({
             key: "info",
             data: self.data.data
@@ -257,7 +321,7 @@ Page({
       }
     })
   },
-  onClickPicker(e) {
+  onClickPickerForDate(e) {
     var index = e.currentTarget.dataset.index
     pickIndex = index
 
